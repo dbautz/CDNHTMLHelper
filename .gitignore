@@ -1,0 +1,26 @@
+# Compiled Python files
+__pycache__/
+*.pyc
+
+# Compiled C extensions
+*.so
+
+# Build files
+build/
+dist/
+*.egg-info/
+
+# Virtual environment
+venv/
+env/
+.venv/
+.ENV/
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+logs/
+log/
