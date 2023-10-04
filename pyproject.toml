@@ -142,7 +142,7 @@ ban-relative-imports = "all"
 "tests/**/*" = ["PLR2004", "S101", "TID252"]
 
 [tool.coverage.run]
-source_pkgs = ["src/CDNHTMLHelper", "tests"]
+source_pkgs = ["CDNHTMLHelper",]
 branch = true
 parallel = true
 omit = [
