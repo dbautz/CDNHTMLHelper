@@ -27,4 +27,4 @@ logs/
 log/
 
 #Coverage
-.coverage
+.coverage*
