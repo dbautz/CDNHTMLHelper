@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from CDNHTMLHelper.cdn_html_helper import CDNHTMLHelper
+from CDNHTMLHelper import CDNHTMLHelper
 
 
 class TestCDNHTMLHelper(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestCDNHTMLHelper(unittest.TestCase):
             "/dist/jquery.js",
             "H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=",
         )
-        with patch("cdn_html_helper.requests.get") as mock_get:
+        with patch("CDNHTMLHelper.requests.get") as mock_get:
             mock_get.return_value.json.return_value = {
                 "type": "npm",
                 "name": "jquery",
@@ -63,7 +63,7 @@ class TestCDNHTMLHelper(unittest.TestCase):
         package = "jquery"
         version = "3.6.0"
         expected_output = {"js": "/dist/jquery.js"}
-        with patch("cdn_html_helper.requests.get") as mock_get:
+        with patch("CDNHTMLHelper.requests.get") as mock_get:
             mock_get.return_value.json.return_value = {
                 "entrypoints": {"js": {"file": "/dist/jquery.js", "guessed": False}}
             }
@@ -89,7 +89,7 @@ class TestCDNHTMLHelper(unittest.TestCase):
             }
         }
 
-        with patch("cdn_html_helper.requests.get") as mock_get, patch.object(
+        with patch("CDNHTMLHelper.requests.get") as mock_get, patch.object(
             self.cdn_html_helper, "_get_default_files", return_value=files
         ), patch.object(
             self.cdn_html_helper,
@@ -137,5 +137,5 @@ class TestCDNHTMLHelper(unittest.TestCase):
             self.assertEqual(output, expected_output)
 
 
-if __name__ == "__main__":
-    unittest.main()
+# if __name__ == "__main__":
+#     unittest.main()
