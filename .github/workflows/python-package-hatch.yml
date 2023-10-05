@@ -18,7 +18,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install hatch
-        hatch install
+        hatch build
     - name: Test with unittest
       run: |
-        python -m unittest discover -s tests
+        hatch run test
