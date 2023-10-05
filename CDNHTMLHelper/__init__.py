@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 
 import requests
 from markupsafe import Markup
@@ -10,25 +11,19 @@ class CDNHTMLHelper:
     """
 
     CDN_URL = "https://cdn.jsdelivr.net"
+
     DATA_URL = "https://data.jsdelivr.com"
+    FILE_PATH = "/{repo}/{package}@{version}{name}"
     API_RESOLVED_VERSION = "/v1/packages/npm/{package}/resolved"
     API_VERSION_METADATA = "/v1/packages/npm/{package}@{version}"
     API_ENTRYPOINTS = "/v1/packages/npm/{package}@{version}/entrypoints"
     TEMPLATE_STRINGS = {
-        ".css": (
-            '<link rel="stylesheet"'
-            ' href="{cdn_url}/{repo}/{package}@{version}{name}"'
-            ' integrity="sha256-{hash}" crossorigin="anonymous"/>'
-        ),
-        ".js": (
-            '<script src="{cdn_url}/{repo}/{package}@{version}{name}"'
-            ' integrity="sha256-{hash}"'
-            ' crossorigin="anonymous"></script>'
-        ),
+        ".css": ('<link rel="stylesheet"' ' href="{file_url}"' ' integrity="sha256-{hash}" crossorigin="anonymous"/>'),
+        ".js": ('<script src="{file_url}"' ' integrity="sha256-{hash}"' ' crossorigin="anonymous"></script>'),
         # Add more template strings for other file types if needed
     }
 
-    def __init__(self, app=None):
+    def __init__(self, app=None, local=False, local_url=None):
         """
         Initializes a new instance of the CDNHTMLHelper class.
 
@@ -39,10 +34,39 @@ class CDNHTMLHelper:
         self.app_name = type(app).__name__
 
         if self.app_name == "Flask":
+            self.app = app
 
             @app.context_processor
             def _():
                 return dict(cdn_html_helper=self)
+
+        self.handle_local(local, local_url)
+
+    def handle_local(self, local, local_url):
+        """
+        Handles the local resources for the CDNHTMLHelper object.
+
+        Args:
+            local (bool, str, Path): If True, sets the local resources to the Flask app's static folder. If a string or Path, sets the local resources to the specified directory.
+            local_url (str, optional): The URL path for the local resources. Defaults to None.
+
+        Returns:
+            None
+        """
+
+        if local == True and self.app_name == "Flask":
+            self.local = Path(self.app.static_folder, "resources")
+            if local_url == None:
+                self.local_url = f"{self.app.static_url_path}/resources"
+        elif local == True:
+            self.local = Path("resources")
+        elif type(local) == str:
+            self.local = Path(local)
+        elif type(local) == Path:
+            self.local = local
+
+        if self.local and not self.local_url:
+            self.local_url = local
 
     def _get_hash_and_name(self, package, version, filename):
         """
@@ -77,9 +101,7 @@ class CDNHTMLHelper:
             A dictionary containing the default files for the package version.
         """
         files = {}
-        r = requests.get(
-            self.DATA_URL + self.API_ENTRYPOINTS.format(package=package, version=version)
-        )
+        r = requests.get(self.DATA_URL + self.API_ENTRYPOINTS.format(package=package, version=version))
         entrypoints = r.json().get("entrypoints", {})
         for key, value in entrypoints.items():
             if "file" in value:
@@ -118,6 +140,18 @@ class CDNHTMLHelper:
                 "repo": "npm",
                 "hash": hash,
             }
+            if self.local:
+                self.download(package, data["version"], name)
+
+    def download(self, package, version, name):
+        file_path = self.FILE_PATH.format(cdn_url=self.CDN_URL, repo="npm", package=package, version=version, name=name)
+        _path = Path(self.local, file_path.lstrip("/"))
+        if not _path.is_relative_to(self.local):
+            raise Exception("Path leaves current dir")
+
+        _path.parent.mkdir(parents=True, exist_ok=True)
+        with open(_path, "wb") as f:
+            f.write(requests.get(self.CDN_URL + file_path).content)
 
     def _find_matching_extension(self, filename):
         """
@@ -160,27 +194,42 @@ class CDNHTMLHelper:
         else:
             return f"<!-- Template string not found for file type [{file['name']}] -->"
 
+        file_path = self.FILE_PATH.format(
+            repo=file.get("repo"), package=file.get("package"), version=file.get("version"), name=file.get("name")
+        )
+        file_url = f"{self.CDN_URL if not self.local else self.local_url}{file_path}"
         return template_string.format(
-            cdn_url=self.CDN_URL,
-            repo=file.get("repo"),
-            package=file.get("package"),
-            version=file.get("version"),
-            name=file.get("name"),
+            file_url=file_url,
             hash=file.get("hash"),
         )
 
-    def get(self, package, alias):
+    def get(self, package=None, alias=None):
         """
-        Gets the HTML tag for a file in a package.
+        Generates HTML tags for the specified package and alias, or for all packages and aliases if none are specified.
 
         Args:
-            package: The name of the package.
-            alias: The alias of the file.
+            package (str, optional): The name of the package to generate HTML tags for.
+            alias (str, optional): The alias of the package file to generate HTML tags for.
 
         Returns:
-            The HTML tag for the file.
+            str or Markup: The generated HTML tags.
         """
-        html = self._get_string(package, alias)
+        html = ""
+        if not package and not alias:
+            for package in self.data.keys():
+                for alias in self.data.get(package, {}).get("files", {}).keys():
+                    html += self._get_string(package, alias)
+
+        if not package and alias:
+            for package in self.data.keys():
+                html += self._get_string(package, alias)
+
+        if package and not alias:
+            for alias in self.data.get(package, {}).get("files", {}).keys():
+                html += self._get_string(package, alias)
+        if package and alias:
+            html = self._get_string(package, alias)
+
         if self.app_name == "Flask":
             return Markup(html)
         return html
