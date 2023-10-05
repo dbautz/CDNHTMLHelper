@@ -17,6 +17,7 @@ class TestCDNHTMLHelper(unittest.TestCase):
             "/dist/jquery.js",
             "H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=",
         )
+
         with patch("CDNHTMLHelper.requests.get") as mock_get:
             mock_get.return_value.json.return_value = {
                 "type": "npm",

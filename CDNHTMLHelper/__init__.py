@@ -32,6 +32,8 @@ class CDNHTMLHelper:
         """
         self.data = {}
         self.app_name = type(app).__name__
+        self.local = local
+        self.local_url = local_url
 
         if self.app_name == "Flask":
             self.app = app
@@ -40,33 +42,24 @@ class CDNHTMLHelper:
             def _():
                 return dict(cdn_html_helper=self)
 
-        self.handle_local(local, local_url)
+        self._handle_local()
 
-    def handle_local(self, local, local_url):
-        """
-        Handles the local resources for the CDNHTMLHelper object.
+    def _handle_local(self):
+       
 
-        Args:
-            local (bool, str, Path): If True, sets the local resources to the Flask app's static folder. If a string or Path, sets the local resources to the specified directory.
-            local_url (str, optional): The URL path for the local resources. Defaults to None.
-
-        Returns:
-            None
-        """
-
-        if local == True and self.app_name == "Flask":
+        if self.local == True and self.app_name == "Flask":
             self.local = Path(self.app.static_folder, "resources")
-            if local_url == None:
+            if self.local_url == None:
                 self.local_url = f"{self.app.static_url_path}/resources"
-        elif local == True:
+        elif self.local == True:
             self.local = Path("resources")
-        elif type(local) == str:
-            self.local = Path(local)
-        elif type(local) == Path:
-            self.local = local
+        elif type(self.local) == str:
+            self.local = Path(self.local)
+        elif type(self.local) == Path:
+            self.local = self.local
 
         if self.local and not self.local_url:
-            self.local_url = local
+            self.local_url = self.local
 
     def _get_hash_and_name(self, package, version, filename):
         """

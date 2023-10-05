@@ -1,3 +1,4 @@
+# pyright: reportMissingImports=false, reportUnusedVariable=warning
 from CDNHTMLHelper import CDNHTMLHelper
 from flask import Flask
 
