@@ -22,7 +22,7 @@ jobs:
           git config --global user.name "autobump"
           VERSION=`hatch version`
           # if current version is not already beta then bump minor and beta
-          [ -z "${b##*`hatch version`*}" ] && hatch version b || hatch version minor,b
+          [ -z "${b##*`hatch version`*}" ] && hatch version b || hatch version micro,b
           NEW_VERSION=`hatch version`
           git add CDNHTMLHelper/__about__.py
           git commit -m "Bump version: $VERSION → $NEW_VERSION"
@@ -81,5 +81,7 @@ jobs:
         with:
           name: python-package-distributions
           path: dist/
-      - name: Publish distribution 📦 to PyPI
+      - name: Publish distribution 📦 to PyPI-Test
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
