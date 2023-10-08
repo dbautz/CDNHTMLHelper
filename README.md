@@ -140,6 +140,10 @@ Enjoy using the `CDNHTMLHelper` class to simplify the process of including exter
 
 ## Release History
 
+- **0.1.3** (2023-10-08)
+
+  - Adding release to Github
+
 - **0.1.2** (2023-10-08)
 
   - Added description to project
