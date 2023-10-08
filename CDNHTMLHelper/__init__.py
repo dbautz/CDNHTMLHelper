@@ -248,17 +248,13 @@ class CDNHTMLHelper:
             for package in self.data.keys():
                 for alias in self.data.get(package, {}).get("files", {}).keys():
                     html += self._get_string(package, alias)
-
-        if not package and alias:
+        elif not package and alias:
             for package in self.data.keys():
                 html += self._get_string(package, alias)
-
-        if package and not alias:
+        elif package and not alias:
             for alias in self.data.get(package, {}).get("files", {}).keys():
                 html += self._get_string(package, alias)
-        if package and alias:
+        elif package and alias:
             html = self._get_string(package, alias)
 
-        if self.app_name == "Flask":
-            return Markup(html)
-        return html
+        return Markup(html)
