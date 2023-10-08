@@ -32,6 +32,11 @@
           },
           "editor.rulers": [99]
         },
+        "[markdown]": {
+          "editor.wordWrap": "wordWrapColumn",
+          "editor.wordWrapColumn": 99,
+          "editor.rulers": [99]
+        },
         "editor.formatOnSave": true,
         "python.testing.unittestArgs": ["-v", "-s", "./tests"],
         "python.testing.pytestEnabled": false,
@@ -41,6 +46,5 @@
       }
     }
   },
-
   "postCreateCommand": "pip3 install --user -r requirements.txt"
 }
