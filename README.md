@@ -140,10 +140,6 @@ Enjoy using the `CDNHTMLHelper` class to simplify the process of including exter
 
 ## Release History
 
-- **0.1.5** (TBD)
-
-  - WIP
-
 - **0.1.4** (2023-10-08)
 
   - Fixed an issue where get would not return the proper values on omitted parameters
