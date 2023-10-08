@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "CDNHTMLHelper"
 dynamic = ["version"]
-description = ''
+description = "Simplify adding external JavaScript and CSS files from jsDelivr CDN to web apps with Flask integration support."
 readme = "README.md"
 requires-python = ">=3.7"
 license = "MIT"
