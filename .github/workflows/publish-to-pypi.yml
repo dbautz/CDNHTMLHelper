@@ -33,7 +33,6 @@ jobs:
           git config --global user.email "autobump@dbautz.com"
           git config --global user.name "autobump"
           VERSION=`hatch version`
-          # if current version is not already beta then bump minor and beta
           hatch version minor
           NEW_VERSION=`hatch version`
           git add CDNHTMLHelper/__about__.py
