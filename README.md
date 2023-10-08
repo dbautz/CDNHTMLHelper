@@ -1,4 +1,6 @@
-# CDNHTMLHelper README
+# CDNHTMLHelper
+
+[![Build and Test and Publish to PyPI](https://github.com/dbautz/CDNHTMLHelper/actions/workflows/publish-to-pypi.yml/badge.svg)](https://github.com/dbautz/CDNHTMLHelper/actions/workflows/publish-to-pypi.yml)
 
 The `CDNHTMLHelper` is a Python utility for generating HTML tags that link to files hosted on the [jsDelivr Content Delivery Network (CDN)](https://www.jsdelivr.com/). This class simplifies the process of including external JavaScript and CSS files in your web application by providing a programmatic way to generate HTML tags for these resources.
 
