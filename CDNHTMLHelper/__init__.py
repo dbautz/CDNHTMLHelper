@@ -18,8 +18,16 @@ class CDNHTMLHelper:
     API_VERSION_METADATA = "/v1/packages/npm/{package}@{version}"
     API_ENTRYPOINTS = "/v1/packages/npm/{package}@{version}/entrypoints"
     TEMPLATE_STRINGS = {
-        ".css": ('<link rel="stylesheet"' ' href="{file_url}"' ' integrity="sha256-{hash}" crossorigin="anonymous"/>'),
-        ".js": ('<script src="{file_url}"' ' integrity="sha256-{hash}"' ' crossorigin="anonymous"></script>'),
+        ".css": (
+            '<link rel="stylesheet"'
+            ' href="{file_url}"'
+            ' integrity="sha256-{hash}" crossorigin="anonymous"/>'
+        ),
+        ".js": (
+            '<script src="{file_url}"'
+            ' integrity="sha256-{hash}"'
+            ' crossorigin="anonymous"></script>'
+        ),
         # Add more template strings for other file types if needed
     }
 
@@ -45,8 +53,15 @@ class CDNHTMLHelper:
         self._handle_local()
 
     def _handle_local(self):
-       
+        """
+        Configures local resource paths and URLs based on app settings.
 
+        Handles the local resource path and URL configuration,
+        taking into account various conditions such as app and local setting.
+
+        Returns:
+            None
+        """
         if self.local == True and self.app_name == "Flask":
             self.local = Path(self.app.static_folder, "resources")
             if self.local_url == None:
@@ -94,7 +109,9 @@ class CDNHTMLHelper:
             A dictionary containing the default files for the package version.
         """
         files = {}
-        r = requests.get(self.DATA_URL + self.API_ENTRYPOINTS.format(package=package, version=version))
+        r = requests.get(
+            self.DATA_URL + self.API_ENTRYPOINTS.format(package=package, version=version)
+        )
         entrypoints = r.json().get("entrypoints", {})
         for key, value in entrypoints.items():
             if "file" in value:
@@ -134,10 +151,26 @@ class CDNHTMLHelper:
                 "hash": hash,
             }
             if self.local:
-                self.download(package, data["version"], name)
+                self._download(package, data["version"], name)
 
-    def download(self, package, version, name):
-        file_path = self.FILE_PATH.format(cdn_url=self.CDN_URL, repo="npm", package=package, version=version, name=name)
+    def _download(self, package, version, name):
+        """
+        Downloads a file from a CDN and saves it to the local file system.
+
+        Args:
+            package (str): The name of the package to download.
+            version (str): The version of the package to download.
+            name (str): The name of the file to download.
+
+        Raises:
+            Exception: If the resulting file path is not relative to the current directory.
+
+        Returns:
+            None
+        """
+        file_path = self.FILE_PATH.format(
+            cdn_url=self.CDN_URL, repo="npm", package=package, version=version, name=name
+        )
         _path = Path(self.local, file_path.lstrip("/"))
         if not _path.is_relative_to(self.local):
             raise Exception("Path leaves current dir")
@@ -188,7 +221,10 @@ class CDNHTMLHelper:
             return f"<!-- Template string not found for file type [{file['name']}] -->"
 
         file_path = self.FILE_PATH.format(
-            repo=file.get("repo"), package=file.get("package"), version=file.get("version"), name=file.get("name")
+            repo=file.get("repo"),
+            package=file.get("package"),
+            version=file.get("version"),
+            name=file.get("name"),
         )
         file_url = f"{self.CDN_URL if not self.local else self.local_url}{file_path}"
         return template_string.format(
