@@ -18,6 +18,8 @@ jobs:
       - name: automatically pre-release without tag branch
         if: startsWith(github.ref, 'refs/tags/') == false
         run: |
+          git config --global user.email "autobump@dbautz.com"
+          git config --global user.name "autobump"
           VERSION=`hatch version`
           # if current version is not already beta then bump minor and beta
           [ -z "${b##*`hatch version`*}" ] && hatch version b || hatch version minor,b
@@ -28,6 +30,8 @@ jobs:
       - name: automatically release with tag branch
         if: startsWith(github.ref, 'refs/tags/')
         run: |
+          git config --global user.email "autobump@dbautz.com"
+          git config --global user.name "autobump"
           VERSION=`hatch version`
           # if current version is not already beta then bump minor and beta
           hatch version minor
